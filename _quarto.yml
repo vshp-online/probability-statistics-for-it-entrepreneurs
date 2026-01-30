@@ -15,6 +15,7 @@ book:
   subtitle: "Под редакцией П.С. Ткачева"
   page-navigation: true
   repo-url: https://github.com/vshp-online/probability-statistics-for-it-entrepreneurs
+  output-file: probability-statistics-for-it-entrepreneurs
 
   author:
     - "Н.Н. Зубов"
@@ -51,7 +52,6 @@ format:
   pdf:
     pdf-engine: lualatex
     documentclass: scrbook
-    output-file: "probability-statistics-for-it-entrepreneurs.pdf"
 
     mainfont: "Libertinus Serif"
     sansfont: "Libertinus Sans"
