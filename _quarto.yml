@@ -52,6 +52,10 @@ format:
   pdf:
     pdf-engine: lualatex
     documentclass: scrbook
+    classoption:
+      - open=any
+    papersize: a4
+    fontsize: 14pt
 
     mainfont: "Libertinus Serif"
     sansfont: "Libertinus Sans"
@@ -61,6 +65,11 @@ format:
     geometry:
       - margin=25mm
     number-sections: true
+    include-in-header:
+      text: |
+        \usepackage{indentfirst}
+        \setlength{\parindent}{1.25cm}
+        \setlength{\parskip}{0pt}
 
 execute:
   freeze: auto
