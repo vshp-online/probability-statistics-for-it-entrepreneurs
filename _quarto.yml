@@ -51,6 +51,7 @@ format:
   pdf:
     pdf-engine: lualatex
     documentclass: scrbook
+    output-file: "probability-statistics-for-it-entrepreneurs.pdf"
 
     mainfont: "Libertinus Serif"
     sansfont: "Libertinus Sans"
