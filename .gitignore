@@ -1,0 +1,17 @@
+# Quarto
+_book/
+.quarto/
+_site/
+_output/
+/.quarto/
+**/*.quarto_ipynb
+
+# OS / IDE
+.DS_Store
+.vscode/settings.json
+
+# AI Agents
+AGENTS.md
+
+# Documents
+**/*.docx
