@@ -7,6 +7,8 @@
 Авторы: Н.Н. Зубов, П.С. Ткачев, С.З. Умаров.
 Под редакцией Ткачева П.С.
 
+PDF-версия (GitHub Pages): https://vshp-online.github.io/probability-statistics-for-it-entrepreneurs/probability-statistics-for-it-entrepreneurs.pdf
+
 ## Быстрый старт
 
 ### Требования

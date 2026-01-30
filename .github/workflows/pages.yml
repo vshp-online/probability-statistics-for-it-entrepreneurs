@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -22,6 +22,8 @@ jobs:
 
       - name: Setup Quarto
         uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          tinytex: true
 
       - name: Install TeX packages
         run: |
@@ -30,6 +32,22 @@ jobs:
 
       - name: Render book
         run: quarto render
+
+      - name: Upload PDF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: book-pdf
+          path: _book/probability-statistics-for-it-entrepreneurs.pdf
+
+      - name: Publish PDF release (latest)
+        uses: ncipollo/release-action@v1
+        with:
+          tag: pdf-latest
+          name: PDF (latest)
+          artifacts: _book/probability-statistics-for-it-entrepreneurs.pdf
+          allowUpdates: true
+          replacesArtifacts: true
+          prerelease: false
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
