@@ -67,10 +67,8 @@ format:
       - margin=25mm
     number-sections: true
     include-in-header:
-      text: |
-        \usepackage{indentfirst}
-        \setlength{\parindent}{1.25cm}
-        \setlength{\parskip}{0pt}
+      - book/tex/typography.tex
+      - book/tex/hyphenation.tex
 
 execute:
   freeze: auto

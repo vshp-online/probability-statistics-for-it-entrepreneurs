@@ -121,6 +121,13 @@ pip install -r requirements.txt
 python code/scripts/figures/ch01/generate_figures.py
 ```
 
+### PDF-типографика и переносы
+
+Настройки PDF вынесены в отдельные LaTeX-файлы:
+
+- `book/tex/typography.tex` — типографика, переносы в формулах, абзацные отступы.
+- `book/tex/hyphenation.tex` — пользовательские переносы слов.
+
 ### Инструкции и лицензия
 
 - `LICENSE.md` — лицензия на материалы.
