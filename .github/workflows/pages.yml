@@ -48,6 +48,7 @@ jobs:
           artifacts: _book/probability-statistics-for-it-entrepreneurs.pdf
           allowUpdates: true
           replacesArtifacts: true
+          commit: ${{ github.sha }}
           prerelease: false
 
       - name: Upload Pages artifact
