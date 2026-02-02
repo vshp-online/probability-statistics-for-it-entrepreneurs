@@ -13,6 +13,7 @@ def get_image_filename(script_path: str, ext: str = 'png') -> str:
     base = os.path.splitext(os.path.basename(script_path))[0]
     return f"{base}.{ext}"
 
+# pylint: disable=too-many-arguments,too-many-positional-arguments
 def save_figure(filename: str,
                 directory: str = 'figures',
                 dpi: int = 300,
@@ -43,8 +44,10 @@ def save_figure(filename: str,
     elif close:
         plt.close()
 
+# pylint: disable=too-many-arguments,too-many-positional-arguments
 def run_example(draw_fn, filename, save=True, show=False, directory='figures'):
     """Создаёт фигуру, вызывает draw_fn(ax), затем сохраняет или показывает график."""
     fig, ax = plt.subplots(figsize=(6, 6))
+    _ = fig
     draw_fn(ax)
     save_figure(filename, directory=directory, save=save, show=show)

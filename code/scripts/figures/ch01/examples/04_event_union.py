@@ -1,3 +1,4 @@
+# pylint: disable=invalid-name,missing-module-docstring,wrong-import-position,unused-import,line-too-long,missing-function-docstring,duplicate-code,no-else-return
 meta = {
     "title": "Сумма событий A и B",
     "book_ref": "Пример 1.15 / Рисунок 1.4",

@@ -1,14 +1,13 @@
 """
-Генерация рисунков для раздела 1.1.
+Генерация рисунков для главы 1.
+
 Запуск из корня проекта:
   python code/scripts/figures/ch01/generate_figures.py
 """
 from pathlib import Path
 import importlib.util
 
-from code.lib.plot_utils import run_example
-
-ROOT = Path(__file__).resolve().parents[3]
+ROOT = Path(__file__).resolve().parents[4]
 EXAMPLES_DIR = Path(__file__).resolve().parent / "examples"
 OUTPUT_DIR = ROOT / "book" / "images"
 
@@ -24,19 +23,37 @@ EXAMPLE_FILES = [
 
 
 def load_module(path: Path):
+    """Динамически загружает модуль по пути."""
     spec = importlib.util.spec_from_file_location(path.stem, path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
 
 
+def load_plot_utils():
+    """Загружает модуль plot_utils из code/lib."""
+    utils_path = ROOT / "code" / "lib" / "plot_utils.py"
+    spec = importlib.util.spec_from_file_location("plot_utils", utils_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def main() -> None:
+    """Генерирует PNG для списка примеров в book/images."""
+    plot_utils = load_plot_utils()
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     for fname in EXAMPLE_FILES:
         fpath = EXAMPLES_DIR / fname
         module = load_module(fpath)
         out_name = fpath.with_suffix('.png').name
-        run_example(module.draw, out_name, save=True, show=False, directory=str(OUTPUT_DIR))
+        plot_utils.run_example(
+            module.draw,
+            out_name,
+            save=True,
+            show=False,
+            directory=str(OUTPUT_DIR),
+        )
 
 
 if __name__ == "__main__":

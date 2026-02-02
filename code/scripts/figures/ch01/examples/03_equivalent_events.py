@@ -1,3 +1,4 @@
+# pylint: disable=invalid-name,missing-module-docstring,wrong-import-position,unused-import,line-too-long
 meta = {
     "title": "Эквивалентные события A и B",
     "book_ref": "Пример 1.14 / Рисунок 1.3",

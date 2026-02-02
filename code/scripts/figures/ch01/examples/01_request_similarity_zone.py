@@ -1,3 +1,4 @@
+# pylint: disable=invalid-name,missing-module-docstring,wrong-import-position,unused-import,line-too-long
 meta = {
     "title": "Область временной близости запросов |t₁ - t₂| < 0,2",
     "book_ref": "Пример 1.9 / Рисунок 1.1",
@@ -8,7 +9,6 @@ meta = {
 }
 
 import numpy as np
-import matplotlib.pyplot as plt
 
 def draw(ax):
     """Строит график на переданной оси."""
