@@ -15,3 +15,7 @@ AGENTS.md
 
 # Documents
 **/*.docx
+
+# Imported files / projects
+imported/
+
