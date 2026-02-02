@@ -9,6 +9,15 @@ toc-depth: 3
 
 number-sections: true
 number-depth: 3
+crossref:
+  fig-title: "Рисунок"
+  tbl-title: "Таблица"
+  eq-title: "Формула"
+  fig-prefix: "рис."
+  tbl-prefix: "табл."
+  eq-prefix: "формула"
+  exm-title: "Пример"
+  exm-prefix: "пример"
 
 book:
   title: "Теория вероятностей и математическая статистика для начинающих IT-предпринимателей"
