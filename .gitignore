@@ -8,6 +8,7 @@ _output/
 
 # OS / IDE
 .DS_Store
+.venv/
 .vscode/settings.json
 
 # AI Agents
@@ -18,4 +19,3 @@ AGENTS.md
 
 # Imported files / projects
 imported/
-
