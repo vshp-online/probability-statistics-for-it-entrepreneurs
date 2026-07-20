@@ -13,6 +13,10 @@ _output/
 
 # AI Agents
 AGENTS.md
+todo.tmp.md
+
+# Временные артефакты анализа и генерации
+/tmp/
 
 # Documents
 **/*.docx
