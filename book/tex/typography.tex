@@ -1,5 +1,29 @@
 % Общие типографические настройки для PDF
 \usepackage{microtype}
+\usepackage[automark,headsepline]{scrlayer-scrpage}
+\usepackage{etoolbox}
+\usepackage{needspace}
+
+% Короткий колонтитул не зависит от длины названий глав.
+\clearpairofpagestyles
+\ihead{\small\sffamily Теория вероятностей и статистика}
+\ofoot{\pagemark}
+\pagestyle{scrheadings}
+\renewcommand*{\chapterpagestyle}{plain.scrheadings}
+
+% Quarto иногда вставляет \cleardoublepage перед новой главой даже при open=any.
+\let\cleardoublepage\clearpage
+
+% Примеры остаются частью основного набора: без рамок и плашек, но с
+% достаточным отступом, чтобы их начало не отделялось от текста страницы.
+\AtBeginDocument{%
+  \pretocmd{\example}{%
+    \par\Needspace{6\baselineskip}\addvspace{10pt}%
+  }{}{}%
+  \apptocmd{\endexample}{%
+    \par\addvspace{10pt}%
+  }{}{}%
+}
 \emergencystretch=2em
 \tolerance=1000
 \hyphenpenalty=50

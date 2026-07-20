@@ -1,0 +1,18 @@
+/* Единое оформление учебных примеров в HTML-версии книги. */
+.example.theorem {
+  margin: 1.5rem 0;
+  padding: 0.2rem 0 0.2rem 1rem;
+  border-left: 0.22rem solid #2d6f85;
+  background: transparent;
+}
+
+.example.theorem p:last-child {
+  margin-bottom: 0;
+}
+
+.example.theorem .theorem-title {
+  color: #1f5669;
+  font-family: var(--bs-font-sans-serif);
+  font-size: 0.95em;
+  letter-spacing: 0.01em;
+}

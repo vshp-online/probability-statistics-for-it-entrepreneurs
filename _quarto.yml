@@ -61,6 +61,7 @@ format:
     code-copy: true
     anchor-sections: true
     smooth-scroll: true
+    css: book/styles/book.css
   pdf:
     pdf-engine: lualatex
     documentclass: scrbook
