@@ -16,3 +16,10 @@
   font-size: 0.95em;
   letter-spacing: 0.01em;
 }
+
+/* Страховка для узких экранов: формула не перекрывает оглавление. */
+.example.theorem .math.display {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}

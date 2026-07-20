@@ -1,8 +1,8 @@
 # pylint: disable=invalid-name,missing-module-docstring,wrong-import-position,unused-import,line-too-long
 meta = {
     "title": "Событие A и противоположное событие Ā",
-    "book_ref": "Пример 1.13 / Рисунок 1.2",
-    "description": "Пример диаграммы Венна для противоположных событий A и Ā",
+    "book_ref": "Раздел 1.2 / Рисунок 1.2",
+    "description": "Диаграмма Венна для противоположных событий A и Ā",
     "authors": [
         {"name": "П.С. Ткачев", "email": "p.tkachev@vshp.online"},
         {"name": "Н.Н. Зубов", "email": "nick-work@bk.ru"}
@@ -14,8 +14,8 @@ from matplotlib.patches import Ellipse, Rectangle
 import matplotlib.patheffects as path_effects
 
 def draw(ax):
-    """Рисует универсум и множество A."""
-    ax.add_patch(Rectangle((0, 0), 6, 4, edgecolor='black', facecolor='white', linewidth=1))
+    """Рисует универсум с явно выделенными A и Ā."""
+    ax.add_patch(Rectangle((0, 0), 6, 4, edgecolor='black', facecolor='#E8EEF1', linewidth=1))
 
     a = Ellipse((3, 2), width=3, height=2, angle=-30, facecolor='lightblue', edgecolor='black')
     ax.add_patch(a)
@@ -23,7 +23,8 @@ def draw(ax):
     text_a = ax.text(3, 2, 'A', ha='center', va='center', fontsize=18, fontstyle='italic')
     text_a.set_path_effects([path_effects.Stroke(linewidth=4, foreground='white'), path_effects.Normal()])
 
-    ax.text(5.5, 3.5, 'Ā', fontsize=18, fontstyle='italic')
+    text_not_a = ax.text(5.5, 3.5, 'Ā', fontsize=18, fontstyle='italic', ha='center', va='center')
+    text_not_a.set_path_effects([path_effects.Stroke(linewidth=4, foreground='white'), path_effects.Normal()])
 
     ax.set_xlim(0, 6)
     ax.set_ylim(0, 4)

@@ -17,8 +17,9 @@ EXAMPLE_FILES = [
     "03_equivalent_events.py",
     "04_event_union.py",
     "05_event_intersection.py",
-    "06_event_joint.py",
+    "06_event_symmetric_difference.py",
     "07_event_disjoint.py",
+    "08_complete_group.py",
 ]
 
 
