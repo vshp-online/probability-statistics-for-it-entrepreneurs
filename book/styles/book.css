@@ -23,3 +23,38 @@
   overflow-x: auto;
   overflow-y: hidden;
 }
+
+.repo-material {
+  display: grid;
+  grid-template-columns: 7.25rem minmax(0, 1fr);
+  width: min(100%, 42rem);
+  margin: 1rem 0 1.5rem;
+  border: 1px solid #b9c4c9;
+  border-radius: 0.2rem;
+  background: #fff;
+}
+
+.repo-material-qr {
+  display: grid;
+  place-items: center;
+  min-height: 7.25rem;
+  padding: 0.7rem;
+  border-right: 1px solid #b9c4c9;
+}
+
+.repo-material-qr img {
+  width: 5.5rem;
+  height: 5.5rem;
+}
+
+.repo-material-path {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: 1rem 1.2rem;
+}
+
+.repo-material-path code {
+  overflow-wrap: anywhere;
+  font-size: 0.95em;
+}

@@ -1,5 +1,6 @@
 % Общие типографические настройки для PDF
 \usepackage{microtype}
+\usepackage{array}
 \usepackage[automark,headsepline]{scrlayer-scrpage}
 \usepackage{etoolbox}
 \usepackage{needspace}
@@ -13,6 +14,7 @@
 
 % Quarto иногда вставляет \cleardoublepage перед новой главой даже при open=any.
 \let\cleardoublepage\clearpage
+\raggedbottom
 
 % Примеры остаются частью основного набора: без рамок и плашек, но с
 % достаточным отступом, чтобы их начало не отделялось от текста страницы.
@@ -37,3 +39,20 @@
 \setlength{\belowdisplayskip}{8pt}
 \setlength{\abovedisplayshortskip}{8pt}
 \setlength{\belowdisplayshortskip}{6pt}
+
+% Единый двухъячеечный блок для материалов к практическим примерам:
+% QR-код слева, путь от корня репозитория справа.
+\newcommand{\repolinkblock}[3]{%
+  \par\medskip
+  \begin{center}
+    \small
+    \setlength{\tabcolsep}{6pt}%
+    \renewcommand{\arraystretch}{1}%
+    \begin{tabular}{|>{\centering\arraybackslash}m{28mm}|>{\raggedright\arraybackslash}m{105mm}|}
+      \hline
+      \parbox[c][\dimexpr28mm+2\tabcolsep\relax][c]{28mm}{\centering\includegraphics[width=23mm]{#1}} & \href{#2}{\texttt{\detokenize{#3}}} \\
+      \hline
+    \end{tabular}
+  \end{center}
+  \medskip
+}

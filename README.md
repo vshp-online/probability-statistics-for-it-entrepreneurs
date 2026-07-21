@@ -10,8 +10,8 @@
 
 Ссылки:
 
-- [Открыть сайт книги (GitHub Pages)](https://vshp-online.github.io/probability-statistics-for-it-entrepreneurs/)
-- [Скачать PDF](https://vshp-online.github.io/probability-statistics-for-it-entrepreneurs/probability-statistics-for-it-entrepreneurs.pdf)
+- [Открыть сайт книги (GitHub Pages)](https://vshp-online.github.io/ps-it-book/)
+- [Скачать PDF](https://vshp-online.github.io/ps-it-book/probability-statistics-for-it-entrepreneurs.pdf)
 
 ## Быстрый старт
 

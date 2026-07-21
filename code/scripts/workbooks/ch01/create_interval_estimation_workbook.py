@@ -44,8 +44,9 @@ def formula(expression: str, value: float, style: str = "") -> str:
     )
 
 
-def row(cells: list[str]) -> str:
-    return f"<table:table-row>{''.join(cells)}</table:table-row>"
+def row(cells: list[str], style: str = "") -> str:
+    style_attr = f' table:style-name="{style}"' if style else ""
+    return f"<table:table-row{style_attr}>{''.join(cells)}</table:table-row>"
 
 
 def student_critical(degrees_of_freedom: int) -> float:
@@ -94,7 +95,7 @@ def calculation_row(row_number: int, channel: str, n: int, m: int) -> str:
             formula(f"[.J{ref}]+[.G{ref}]*[.K{ref}]", phi_max, "number"),
             formula(f"SIN([.L{ref}]/2)^2", fisher_min, "percent"),
             formula(f"SIN([.M{ref}]/2)^2", fisher_max, "percent"),
-            cell("Традиционный" if validity > 5 else "Фишера", "result"),
+            cell("Традиц." if validity > 5 else "Фишер", "result"),
             formula(
                 f"IF([.E{ref}]>5;[.H{ref}];[.N{ref}])", lower, "percent"
             ),
@@ -108,9 +109,9 @@ def calculation_row(row_number: int, channel: str, n: int, m: int) -> str:
 def make_fods() -> str:
     headers = [
         "Канал",
-        "Наблюдения n",
-        "События m",
-        "Частость p*",
+        "n",
+        "m",
+        "p*",
         "Критерий применимости",
         "СКО p*",
         "t(0,05)",
@@ -122,11 +123,11 @@ def make_fods() -> str:
         "Верхняя граница φ",
         "Нижняя граница: Фишер",
         "Верхняя граница: Фишер",
-        "Выбранный способ",
-        "Нижняя граница 95%",
-        "Верхняя граница 95%",
+        "Метод",
+        "Нижн. 95%",
+        "Верхн. 95%",
     ]
-    widths = ["3.3cm", "2.1cm", "1.7cm", "2.3cm"] + ["2.2cm"] * 11 + ["2.4cm"] * 3
+    widths = ["4.0cm", "1.2cm", "1.2cm", "1.6cm"] + ["2.2cm"] * 11 + ["2.2cm", "2.1cm", "2.1cm"]
     columns = "".join(
         f'<table:table-column table:style-name="col{index}"'
         f'{" table:visibility=\"collapse\"" if 5 <= index <= 15 else ""}/>'
@@ -147,7 +148,8 @@ def make_fods() -> str:
 <office:document xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0" xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2" office:version="1.3" office:mimetype="application/vnd.oasis.opendocument.spreadsheet">
   <office:automatic-styles>
     {column_styles}
-    <style:style style:name="header" style:family="table-cell"><style:table-cell-properties fo:background-color="#D9EAF0" fo:border="0.06pt solid #6B7A80" fo:wrap-option="wrap"/><style:text-properties fo:font-weight="bold" fo:font-size="9pt"/></style:style>
+    <style:style style:name="header-row" style:family="table-row"><style:table-row-properties style:row-height="0.7cm" style:use-optimal-row-height="false"/></style:style>
+    <style:style style:name="header" style:family="table-cell"><style:table-cell-properties fo:background-color="#D9EAF0" fo:border="0.06pt solid #6B7A80" style:vertical-align="middle"/><style:paragraph-properties fo:text-align="center"/><style:text-properties fo:font-weight="bold" fo:font-size="9pt"/></style:style>
     <style:style style:name="input" style:family="table-cell"><style:table-cell-properties fo:background-color="#FFF4CC" fo:border="0.06pt solid #A0A0A0"/></style:style>
     <style:style style:name="number" style:family="table-cell"><style:table-cell-properties fo:border="0.06pt solid #A0A0A0"/><style:text-properties fo:font-size="9pt"/></style:style>
     <style:style style:name="percent" style:family="table-cell" style:data-style-name="percent2"><style:table-cell-properties fo:border="0.06pt solid #A0A0A0"/></style:style>
@@ -158,7 +160,7 @@ def make_fods() -> str:
     <office:spreadsheet>
       <table:table table:name="Расчёт">
         {columns}
-        {row([header_cells])}
+        {row([header_cells], "header-row")}
         {data_rows}
       </table:table>
     </office:spreadsheet>
