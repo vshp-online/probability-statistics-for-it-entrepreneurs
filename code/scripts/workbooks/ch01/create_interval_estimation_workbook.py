@@ -155,7 +155,7 @@ def make_fods() -> str:
     <style:style style:name="input" style:family="table-cell"><style:table-cell-properties fo:background-color="#FFF4CC" fo:border="0.06pt solid #A0A0A0"/></style:style>
     <style:style style:name="number" style:family="table-cell"><style:table-cell-properties fo:border="0.06pt solid #A0A0A0"/><style:text-properties fo:font-size="9pt"/></style:style>
     <style:style style:name="percent" style:family="table-cell" style:data-style-name="percent2"><style:table-cell-properties fo:border="0.06pt solid #A0A0A0"/></style:style>
-    <style:style style:name="result" style:family="table-cell"><style:table-cell-properties fo:background-color="#E8F1E2" fo:border="0.06pt solid #A0A0A0"/></style:style>
+    <style:style style:name="result" style:family="table-cell"><style:table-cell-properties fo:background-color="#E8F1E2" fo:border="0.06pt solid #A0A0A0"/><style:paragraph-properties fo:text-align="center"/></style:style>
     <number:percentage-style style:name="percent2"><number:number number:decimal-places="3" number:min-decimal-places="3"/><number:text>%</number:text></number:percentage-style>
   </office:automatic-styles>
   <office:body>
