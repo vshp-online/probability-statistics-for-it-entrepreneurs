@@ -58,3 +58,19 @@
   overflow-wrap: anywhere;
   font-size: 0.95em;
 }
+
+.build-info {
+  width: fit-content;
+  margin: 1.5rem 0 0;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid #c8d1d5;
+  border-radius: 0.2rem;
+  color: #4b5960;
+  background: #f7f9fa;
+  font-family: var(--bs-font-sans-serif);
+  font-size: 0.88rem;
+}
+
+.build-info p {
+  margin: 0;
+}
