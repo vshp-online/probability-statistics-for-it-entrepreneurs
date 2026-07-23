@@ -60,7 +60,7 @@ format:
 
     mainfont: "Libertinus Serif"
     sansfont: "Libertinus Sans"
-    monofont: "Libertinus Mono"
+    monofont: "Noto Sans Mono"
     mathfont: "Libertinus Math"
 
     geometry:

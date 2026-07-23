@@ -115,11 +115,11 @@ axes[0].bar(
     align="edge",
     edgecolor="white",
 )
-axes[0].set(xlabel="Time, s", ylabel="Relative frequency")
+axes[0].set(xlabel="Время, с", ylabel="Частость")
 axes[1].plot(edges[1:], np.cumsum(relative), marker="o")
 axes[1].set(
-    xlabel="Upper bound, s",
-    ylabel="Cumulative frequency",
+    xlabel="Верхняя граница, с",
+    ylabel="Накопленная частость",
 )
 plt.tight_layout()
 ```
