@@ -1,0 +1,5 @@
+project:
+  output-dir: tmp/editable
+  resources:
+    - code/data/interval-estimation-calc.ods
+    - "!tmp/**"
