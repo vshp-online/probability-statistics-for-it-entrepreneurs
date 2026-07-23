@@ -17,6 +17,7 @@ book:
         - book/chapters/02-sales-statistics/02-distribution-law.qmd
         - book/chapters/02-sales-statistics/03-moments-and-characteristics.qmd
         - book/chapters/02-sales-statistics/04-discrete-distributions.qmd
+        - book/chapters/02-sales-statistics/05-continuous-distributions.qmd
     - part: "Использование методов математической статистики в бизнесе"
       chapters:
         - book/chapters/03-statistical-methods/01-statistical-methods.qmd
