@@ -27,4 +27,5 @@ book:
         - book/chapters/02-sales-statistics/04-discrete-distributions.qmd
         - book/chapters/02-sales-statistics/05-continuous-distributions.qmd
         - book/chapters/02-sales-statistics/06-distribution-plots.qmd
+        - book/chapters/02-sales-statistics/07-descriptive-statistics.qmd
     - references.qmd

@@ -7,9 +7,10 @@ Run from the repository root:
 from __future__ import annotations
 
 import csv
-from math import ceil, log2
+from math import ceil, log2, sqrt
 from pathlib import Path
 from shutil import which
+from statistics import mean, median, multimode, stdev, variance
 from subprocess import run
 from tempfile import TemporaryDirectory
 
@@ -29,6 +30,63 @@ def load_values() -> list[float]:
 
 
 VALUES = load_values()
+
+
+def percentile_inc(values: list[float], probability: float) -> float:
+    """Return a linearly interpolated inclusive percentile."""
+    ordered = sorted(values)
+    position = (len(ordered) - 1) * probability
+    lower_index = int(position)
+    upper_index = min(lower_index + 1, len(ordered) - 1)
+    fraction = position - lower_index
+    return (
+        ordered[lower_index] * (1 - fraction)
+        + ordered[upper_index] * fraction
+    )
+
+
+def descriptive_statistics() -> dict[str, float]:
+    """Calculate cached values matching the formulas used in Calc."""
+    count = len(VALUES)
+    average = mean(VALUES)
+    sample_standard_deviation = stdev(VALUES)
+    centered = [value - average for value in VALUES]
+    standardized = [
+        difference / sample_standard_deviation for difference in centered
+    ]
+    skewness = (
+        count
+        / ((count - 1) * (count - 2))
+        * sum(value**3 for value in standardized)
+    )
+    excess = (
+        count
+        * (count + 1)
+        / ((count - 1) * (count - 2) * (count - 3))
+        * sum(value**4 for value in standardized)
+        - 3 * (count - 1) ** 2 / ((count - 2) * (count - 3))
+    )
+    first_quartile = percentile_inc(VALUES, 0.25)
+    third_quartile = percentile_inc(VALUES, 0.75)
+    return {
+        "count": count,
+        "sum": sum(VALUES),
+        "mean": average,
+        "median": median(VALUES),
+        "mode": multimode(VALUES)[0],
+        "q1": first_quartile,
+        "q3": third_quartile,
+        "iqr": third_quartile - first_quartile,
+        "min": min(VALUES),
+        "max": max(VALUES),
+        "range": max(VALUES) - min(VALUES),
+        "variance": variance(VALUES),
+        "standard_deviation": sample_standard_deviation,
+        "standard_error": sample_standard_deviation / sqrt(count),
+        "coefficient_of_variation": sample_standard_deviation / average,
+        "skewness": skewness,
+        "excess": excess,
+    }
 
 
 def distribution_rows() -> list[tuple[float, float, float, int, float, float]]:
@@ -109,11 +167,39 @@ def formats(workbook: xlsxwriter.Workbook) -> dict[str, xlsxwriter.format.Format
         "number": workbook.add_format(
             {"border": 1, "border_color": "#B7C1C5", "num_format": "0.0"}
         ),
+        "number2": workbook.add_format(
+            {"border": 1, "border_color": "#B7C1C5", "num_format": "0.00"}
+        ),
+        "number3": workbook.add_format(
+            {"border": 1, "border_color": "#B7C1C5", "num_format": "0.000"}
+        ),
+        "number4": workbook.add_format(
+            {"border": 1, "border_color": "#B7C1C5", "num_format": "0.0000"}
+        ),
         "integer": workbook.add_format(
             {"border": 1, "border_color": "#B7C1C5", "num_format": "0"}
         ),
         "percent": workbook.add_format(
             {"border": 1, "border_color": "#B7C1C5", "num_format": "0.0%"}
+        ),
+        "percent2": workbook.add_format(
+            {"border": 1, "border_color": "#B7C1C5", "num_format": "0.00%"}
+        ),
+        "unit": workbook.add_format(
+            {
+                "border": 1,
+                "border_color": "#B7C1C5",
+                "align": "center",
+                "valign": "vcenter",
+            }
+        ),
+        "text": workbook.add_format(
+            {
+                "border": 1,
+                "border_color": "#B7C1C5",
+                "align": "left",
+                "valign": "vcenter",
+            }
         ),
         "note": workbook.add_format(
             {
@@ -390,12 +476,231 @@ def write_distribution_sheet(
     )
 
 
+def write_descriptive_statistics_sheet(
+    workbook: xlsxwriter.Workbook,
+    workbook_formats: dict[str, xlsxwriter.format.Format],
+) -> None:
+    """Write formula-driven descriptive statistics for the source data."""
+    worksheet = workbook.add_worksheet("Характеристики")
+    worksheet.hide_gridlines(2)
+    worksheet.freeze_panes(4, 0)
+    worksheet.set_portrait()
+    worksheet.set_paper(9)
+    worksheet.fit_to_pages(1, 1)
+    worksheet.set_margins(0.45, 0.45, 0.5, 0.5)
+    worksheet.print_area("A1:D25")
+    worksheet.set_column("A:A", 34)
+    worksheet.set_column("B:B", 16)
+    worksheet.set_column("C:C", 12)
+    worksheet.set_column("D:D", 47)
+    worksheet.set_row(0, 28)
+    worksheet.merge_range(
+        "A1:D1",
+        "Числовые характеристики времени обработки заказов",
+        workbook_formats["title"],
+    )
+    worksheet.merge_range(
+        "A2:D2",
+        (
+            "Все значения вычисляются по листу «Данные». "
+            "Используются выборочные дисперсия и стандартное отклонение."
+        ),
+        workbook_formats["subtitle"],
+    )
+    worksheet.write_row(
+        "A4",
+        ["Показатель", "Значение", "Единица", "Что характеризует"],
+        workbook_formats["header"],
+    )
+
+    values = descriptive_statistics()
+    source = "'Данные'!$B$4:$B$123"
+    rows = [
+        (
+            "Число наблюдений",
+            f"=COUNT({source})",
+            values["count"],
+            workbook_formats["integer"],
+            "шт.",
+            "Объём выборки",
+        ),
+        (
+            "Сумма",
+            f"=SUM({source})",
+            values["sum"],
+            workbook_formats["number"],
+            "с",
+            "Суммарное время",
+        ),
+        (
+            "Среднее",
+            f"=AVERAGE({source})",
+            values["mean"],
+            workbook_formats["number2"],
+            "с",
+            "Средний уровень",
+        ),
+        (
+            "Медиана",
+            f"=MEDIAN({source})",
+            values["median"],
+            workbook_formats["number2"],
+            "с",
+            "Граница двух равных половин выборки",
+        ),
+        (
+            "Мода",
+            f"=MODE({source})",
+            values["mode"],
+            workbook_formats["number2"],
+            "с",
+            "Наиболее частое значение",
+        ),
+        (
+            "Первый квартиль",
+            f"=QUARTILE.INC({source},1)",
+            values["q1"],
+            workbook_formats["number3"],
+            "с",
+            "Не превышают 25% наблюдений",
+        ),
+        (
+            "Третий квартиль",
+            f"=QUARTILE.INC({source},3)",
+            values["q3"],
+            workbook_formats["number3"],
+            "с",
+            "Не превышают 75% наблюдений",
+        ),
+        (
+            "Межквартильный размах",
+            "=B11-B10",
+            values["iqr"],
+            workbook_formats["number3"],
+            "с",
+            "Разброс центральных 50% наблюдений",
+        ),
+        (
+            "Минимум",
+            f"=MIN({source})",
+            values["min"],
+            workbook_formats["number"],
+            "с",
+            "Наименьшее наблюдение",
+        ),
+        (
+            "Максимум",
+            f"=MAX({source})",
+            values["max"],
+            workbook_formats["number"],
+            "с",
+            "Наибольшее наблюдение",
+        ),
+        (
+            "Размах",
+            "=B14-B13",
+            values["range"],
+            workbook_formats["number"],
+            "с",
+            "Полный диапазон наблюдений",
+        ),
+        (
+            "Выборочная дисперсия",
+            f"=VAR.S({source})",
+            values["variance"],
+            workbook_formats["number4"],
+            "с²",
+            "Средний квадрат отклонения с поправкой",
+        ),
+        (
+            "Выборочное стандартное отклонение",
+            f"=STDEV.S({source})",
+            values["standard_deviation"],
+            workbook_formats["number4"],
+            "с",
+            "Типичный масштаб отклонения от среднего",
+        ),
+        (
+            "Стандартная ошибка среднего",
+            f"=STDEV.S({source})/SQRT(COUNT({source}))",
+            values["standard_error"],
+            workbook_formats["number4"],
+            "с",
+            "Точность оценки среднего",
+        ),
+        (
+            "Коэффициент вариации",
+            "=B17/B7",
+            values["coefficient_of_variation"],
+            workbook_formats["percent2"],
+            "%",
+            "Относительный разброс",
+        ),
+        (
+            "Асимметрия",
+            f"=SKEW({source})",
+            values["skewness"],
+            workbook_formats["number4"],
+            "—",
+            "Направление и выраженность асимметрии",
+        ),
+        (
+            "Эксцесс",
+            f"=KURT({source})",
+            values["excess"],
+            workbook_formats["number4"],
+            "—",
+            "Форма относительно нормального распределения",
+        ),
+    ]
+    for row_number, (
+        label,
+        formula,
+        cached_value,
+        value_format,
+        unit,
+        meaning,
+    ) in enumerate(rows, start=5):
+        worksheet.write(row_number - 1, 0, label, workbook_formats["label"])
+        worksheet.write_formula(
+            row_number - 1,
+            1,
+            formula,
+            value_format,
+            cached_value,
+        )
+        worksheet.write(
+            row_number - 1,
+            2,
+            unit,
+            workbook_formats["unit"],
+        )
+        worksheet.write(
+            row_number - 1,
+            3,
+            meaning,
+            workbook_formats["text"],
+        )
+
+    worksheet.merge_range(
+        "A23:D25",
+        (
+            "Стандартная ошибка среднего не является стандартным отклонением "
+            "наблюдений. Доверительные интервалы требуют дополнительных "
+            "предпосылок и рассматриваются отдельно в части о статистическом "
+            "оценивании."
+        ),
+        workbook_formats["note"],
+    )
+
+
 def build_xlsx(path: Path) -> None:
     """Build the intermediate workbook with formulas and native charts."""
     workbook = xlsxwriter.Workbook(path)
     workbook_formats = formats(workbook)
     write_data_sheet(workbook, workbook_formats)
     write_distribution_sheet(workbook, workbook_formats)
+    write_descriptive_statistics_sheet(workbook, workbook_formats)
     workbook.close()
 
 

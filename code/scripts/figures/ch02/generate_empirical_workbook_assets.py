@@ -18,6 +18,7 @@ WORKBOOK = ROOT / "code/data/empirical-distribution-calc.ods"
 QR_OUTPUT = ROOT / "book/images/17_empirical-distribution-calc-qr.png"
 HISTOGRAM_OUTPUT = ROOT / "book/images/18_empirical-histogram-calc.png"
 CUMULATIVE_OUTPUT = ROOT / "book/images/19_empirical-cumulative-calc.png"
+DESCRIPTIVE_OUTPUT = ROOT / "book/images/20_descriptive-statistics-calc.png"
 TARGET = (
     "https://github.com/vshp-online/ps-it-book/"
     "blob/main/code/data/empirical-distribution-calc.ods"
@@ -50,8 +51,8 @@ def create_qr_code() -> None:
         QR_OUTPUT.write_bytes(response.read())
 
 
-def export_chart_images() -> None:
-    """Экспортирует лист Calc и сохраняет две диаграммы отдельными файлами."""
+def export_workbook_images() -> None:
+    """Экспортирует диаграммы и таблицу характеристик из Calc."""
     with TemporaryDirectory(dir=ROOT / "tmp") as temporary:
         temporary_path = Path(temporary)
         profile = temporary_path / "lo-profile"
@@ -77,7 +78,7 @@ def export_chart_images() -> None:
                 "-f",
                 "4",
                 "-l",
-                "4",
+                "5",
                 "-png",
                 "-r",
                 "150",
@@ -89,8 +90,11 @@ def export_chart_images() -> None:
         with Image.open(temporary_path / "distribution-4.png") as page:
             histogram = trim_white_canvas(page.crop((904, 260, 1590, 620)))
             cumulative = trim_white_canvas(page.crop((890, 650, 1590, 970)))
+        with Image.open(temporary_path / "distribution-5.png") as page:
+            descriptive = trim_white_canvas(page, padding=18)
         histogram.save(HISTOGRAM_OUTPUT)
         cumulative.save(CUMULATIVE_OUTPUT)
+        descriptive.save(DESCRIPTIVE_OUTPUT)
 
 
 def main() -> None:
@@ -98,8 +102,13 @@ def main() -> None:
     (ROOT / "tmp").mkdir(exist_ok=True)
     QR_OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     create_qr_code()
-    export_chart_images()
-    for output in (QR_OUTPUT, HISTOGRAM_OUTPUT, CUMULATIVE_OUTPUT):
+    export_workbook_images()
+    for output in (
+        QR_OUTPUT,
+        HISTOGRAM_OUTPUT,
+        CUMULATIVE_OUTPUT,
+        DESCRIPTIVE_OUTPUT,
+    ):
         print(output.relative_to(ROOT))
 
 
