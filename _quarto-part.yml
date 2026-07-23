@@ -20,4 +20,7 @@ book:
     - part: "Данные статистики продаж - случайные величины как количественная сторона случайных явлений"
       chapters:
         - book/chapters/02-sales-statistics/01-sales-statistics.qmd
+        - book/chapters/02-sales-statistics/02-distribution-law.qmd
+        - book/chapters/02-sales-statistics/03-moments-and-characteristics.qmd
+        - book/chapters/02-sales-statistics/04-discrete-distributions.qmd
     - references.qmd
