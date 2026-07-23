@@ -2,6 +2,8 @@ project:
   output-dir: tmp/part
   resources:
     - code/data/interval-estimation-calc.ods
+    - code/data/empirical-distribution-calc.ods
+    - code/data/order-processing-times.csv
     - "!tmp/**"
 
 book:
@@ -24,4 +26,5 @@ book:
         - book/chapters/02-sales-statistics/03-moments-and-characteristics.qmd
         - book/chapters/02-sales-statistics/04-discrete-distributions.qmd
         - book/chapters/02-sales-statistics/05-continuous-distributions.qmd
+        - book/chapters/02-sales-statistics/06-distribution-plots.qmd
     - references.qmd

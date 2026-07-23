@@ -1,7 +1,9 @@
 # Генерация рисунков (Python 3.11)
 matplotlib>=3.10,<3.12
 numpy>=2.0,<2.5
+Pillow>=11,<13
 shapely>=2.1,<2.2
+XlsxWriter>=3.2,<4
 
 # Проверка кода
 pylint>=4,<5

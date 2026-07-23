@@ -50,7 +50,10 @@
     \renewcommand{\arraystretch}{1}%
     \begin{tabular}{|c|l|}
       \hline
-      \parbox[c][26mm][c]{25mm}{\centering\includegraphics[width=21mm]{#1}} &
+      \parbox[c][26mm][c]{25mm}{\centering
+        \IfFileExists{#1}
+          {\includegraphics[width=21mm]{#1}}
+          {\includegraphics[width=21mm]{../../../#1}}} &
       \parbox[c][26mm][c]{108mm}{\raggedright\href{#2}{\texttt{\detokenize{#3}}}} \\
       \hline
     \end{tabular}

@@ -1,0 +1,439 @@
+"""Create the LibreOffice Calc workbook for an empirical distribution.
+
+Run from the repository root:
+    python code/scripts/workbooks/ch02/create_empirical_distribution_workbook.py
+"""
+
+from __future__ import annotations
+
+import csv
+from math import ceil, log2
+from pathlib import Path
+from shutil import which
+from subprocess import run
+from tempfile import TemporaryDirectory
+
+import xlsxwriter
+
+
+ROOT = Path(__file__).resolve().parents[4]
+DATA = ROOT / "code/data/order-processing-times.csv"
+OUTPUT = ROOT / "code/data/empirical-distribution-calc.ods"
+
+
+def load_values() -> list[float]:
+    """Read the observations shared by Calc and Python examples."""
+    with DATA.open(encoding="utf-8", newline="") as stream:
+        reader = csv.DictReader(stream)
+        return [float(row["processing_time_seconds"]) for row in reader]
+
+
+VALUES = load_values()
+
+
+def distribution_rows() -> list[tuple[float, float, float, int, float, float]]:
+    """Return grouped intervals and their frequencies."""
+    interval_count = ceil(1 + log2(len(VALUES)))
+    lower_bound = min(VALUES)
+    width = ceil(((max(VALUES) - lower_bound) / interval_count) * 2) / 2
+    rows = []
+    cumulative = 0
+    for index in range(interval_count):
+        lower = lower_bound + index * width
+        upper = lower + width
+        if index < interval_count - 1:
+            frequency = sum(lower <= value < upper for value in VALUES)
+        else:
+            frequency = sum(lower <= value <= upper for value in VALUES)
+        relative = frequency / len(VALUES)
+        cumulative += frequency
+        rows.append(
+            (
+                lower,
+                upper,
+                (lower + upper) / 2,
+                frequency,
+                relative,
+                cumulative / len(VALUES),
+            )
+        )
+    return rows
+
+
+def formats(workbook: xlsxwriter.Workbook) -> dict[str, xlsxwriter.format.Format]:
+    """Create the shared workbook formats."""
+    return {
+        "title": workbook.add_format(
+            {
+                "bold": True,
+                "font_size": 16,
+                "font_color": "#1F4E5F",
+                "align": "left",
+                "valign": "vcenter",
+            }
+        ),
+        "subtitle": workbook.add_format(
+            {
+                "font_size": 10,
+                "font_color": "#4A5A60",
+                "text_wrap": True,
+                "valign": "top",
+            }
+        ),
+        "header": workbook.add_format(
+            {
+                "bold": True,
+                "bg_color": "#D9EAF0",
+                "border": 1,
+                "border_color": "#8A9BA1",
+                "align": "center",
+                "valign": "vcenter",
+                "text_wrap": True,
+            }
+        ),
+        "input": workbook.add_format(
+            {
+                "bg_color": "#FFF4CC",
+                "border": 1,
+                "border_color": "#D2C27B",
+                "num_format": "0.0",
+            }
+        ),
+        "label": workbook.add_format(
+            {
+                "bg_color": "#E8F1E2",
+                "border": 1,
+                "border_color": "#9EB493",
+            }
+        ),
+        "number": workbook.add_format(
+            {"border": 1, "border_color": "#B7C1C5", "num_format": "0.0"}
+        ),
+        "integer": workbook.add_format(
+            {"border": 1, "border_color": "#B7C1C5", "num_format": "0"}
+        ),
+        "percent": workbook.add_format(
+            {"border": 1, "border_color": "#B7C1C5", "num_format": "0.0%"}
+        ),
+        "note": workbook.add_format(
+            {
+                "italic": True,
+                "font_color": "#4A5A60",
+                "text_wrap": True,
+                "valign": "top",
+            }
+        ),
+    }
+
+
+def write_data_sheet(
+    workbook: xlsxwriter.Workbook,
+    workbook_formats: dict[str, xlsxwriter.format.Format],
+) -> None:
+    """Write the editable source observations."""
+    worksheet = workbook.add_worksheet("Данные")
+    worksheet.hide_gridlines(2)
+    worksheet.freeze_panes(2, 0)
+    worksheet.set_column("A:A", 12)
+    worksheet.set_column("B:B", 24)
+    worksheet.set_column("C:C", 42)
+    worksheet.set_row(0, 28)
+    worksheet.merge_range(
+        "A1:C1", "Время обработки заказов", workbook_formats["title"]
+    )
+    worksheet.merge_range(
+        "A2:C2",
+        "Жёлтые ячейки — исходные наблюдения. Значения указаны в секундах.",
+        workbook_formats["subtitle"],
+    )
+    worksheet.write_row(
+        "A3",
+        ["Наблюдение", "Время, с", "Комментарий"],
+        workbook_formats["header"],
+    )
+    for row_number, value in enumerate(VALUES, start=4):
+        worksheet.write_number(
+            row_number - 1,
+            0,
+            row_number - 3,
+            workbook_formats["integer"],
+        )
+        worksheet.write_number(
+            row_number - 1,
+            1,
+            value,
+            workbook_formats["input"],
+        )
+        worksheet.write_blank(
+            row_number - 1,
+            2,
+            None,
+            workbook_formats["number"],
+        )
+
+
+# A single function keeps the sheet geometry, formula ranges, and chart ranges together.
+# pylint: disable=too-many-locals,too-many-statements
+def write_distribution_sheet(
+    workbook: xlsxwriter.Workbook,
+    workbook_formats: dict[str, xlsxwriter.format.Format],
+) -> None:
+    """Write formulas, grouped frequencies, and native charts."""
+    worksheet = workbook.add_worksheet("Распределение")
+    worksheet.hide_gridlines(2)
+    worksheet.freeze_panes(10, 0)
+    worksheet.set_landscape()
+    worksheet.set_paper(9)
+    worksheet.fit_to_pages(1, 2)
+    worksheet.set_margins(0.35, 0.35, 0.45, 0.45)
+    worksheet.set_h_pagebreaks([25])
+    worksheet.print_area("A1:N43")
+    worksheet.set_column("A:B", 14)
+    worksheet.set_column("C:C", 16)
+    worksheet.set_column("D:F", 18)
+    worksheet.set_column("G:N", 11)
+    worksheet.set_row(0, 28)
+    worksheet.merge_range(
+        "A1:N1",
+        "Эмпирическое распределение времени обработки заказов",
+        workbook_formats["title"],
+    )
+    worksheet.merge_range(
+        "A2:N2",
+        (
+            "Расчёты выполняются формулами по листу «Данные». "
+            "Замените наблюдения и при необходимости скорректируйте число интервалов."
+        ),
+        workbook_formats["subtitle"],
+    )
+
+    summary = [
+        ("Число наблюдений", "=COUNT('Данные'!$B$4:$B$123)", len(VALUES)),
+        ("Минимум, с", "=MIN('Данные'!$B$4:$B$123)", min(VALUES)),
+        ("Максимум, с", "=MAX('Данные'!$B$4:$B$123)", max(VALUES)),
+        (
+            "Число интервалов",
+            "=ROUNDUP(1+LOG(B3,2),0)",
+            ceil(1 + log2(len(VALUES))),
+        ),
+        (
+            "Ширина интервала, с",
+            "=ROUNDUP((B5-B4)/B6*2,0)/2",
+            3.5,
+        ),
+    ]
+    for row_number, (label, formula, cached_value) in enumerate(
+        summary, start=3
+    ):
+        worksheet.write(row_number - 1, 0, label, workbook_formats["label"])
+        value_format = (
+            workbook_formats["integer"]
+            if row_number in (3, 6)
+            else workbook_formats["number"]
+        )
+        worksheet.write_formula(
+            row_number - 1,
+            1,
+            formula,
+            value_format,
+            cached_value,
+        )
+
+    worksheet.write_row(
+        "A11",
+        [
+            "Нижняя граница",
+            "Верхняя граница",
+            "Середина",
+            "Частота",
+            "Частость",
+            "Накопленная частость",
+        ],
+        workbook_formats["header"],
+    )
+
+    rows = distribution_rows()
+    for index, row_values in enumerate(rows, start=12):
+        lower, upper, midpoint, frequency, relative, cumulative = row_values
+        source_row = index
+        if index == 12:
+            lower_formula = "=$B$4"
+            frequency_formula = (
+                "=COUNTIFS('Данные'!$B$4:$B$123,\">=\"&A12,"
+                "'Данные'!$B$4:$B$123,\"<\"&B12)"
+            )
+        else:
+            lower_formula = f"=B{source_row - 1}"
+            comparison = "<=" if index == 19 else "<"
+            frequency_formula = (
+                "=COUNTIFS('Данные'!$B$4:$B$123,\">=\"&"
+                f"A{source_row},'Данные'!$B$4:$B$123,\"{comparison}\"&"
+                f"B{source_row})"
+            )
+        formulas = (
+            (0, lower_formula, lower, workbook_formats["number"]),
+            (
+                1,
+                f"=A{source_row}+$B$7",
+                upper,
+                workbook_formats["number"],
+            ),
+            (
+                2,
+                f"=(A{source_row}+B{source_row})/2",
+                midpoint,
+                workbook_formats["number"],
+            ),
+            (
+                3,
+                frequency_formula,
+                frequency,
+                workbook_formats["integer"],
+            ),
+            (
+                4,
+                f"=D{source_row}/$B$3",
+                relative,
+                workbook_formats["percent"],
+            ),
+            (
+                5,
+                f"=SUM($E$12:E{source_row})",
+                cumulative,
+                workbook_formats["percent"],
+            ),
+        )
+        for column, formula, cached_value, cell_format in formulas:
+            worksheet.write_formula(
+                index - 1,
+                column,
+                formula,
+                cell_format,
+                cached_value,
+            )
+
+    worksheet.write(
+        "A21", "Контроль суммы частот", workbook_formats["label"]
+    )
+    worksheet.write_formula(
+        "B21",
+        "=SUM(D12:D19)",
+        workbook_formats["integer"],
+        len(VALUES),
+    )
+    worksheet.write(
+        "A22", "Контроль суммы частостей", workbook_formats["label"]
+    )
+    worksheet.write_formula(
+        "B22", "=SUM(E12:E19)", workbook_formats["percent"], 1
+    )
+
+    histogram = workbook.add_chart({"type": "column"})
+    histogram.add_series(
+        {
+            "name": "Частость",
+            "categories": "='Распределение'!$C$12:$C$19",
+            "values": "='Распределение'!$E$12:$E$19",
+            "fill": {"color": "#4B91A8"},
+            "border": {"color": "#24758C"},
+            "gap": 5,
+        }
+    )
+    histogram.set_title({"name": "Гистограмма времени обработки"})
+    histogram.set_x_axis({"name": "Середина интервала, с"})
+    histogram.set_y_axis(
+        {"name": "Частость", "num_format": "0%", "min": 0, "max": 0.25}
+    )
+    histogram.set_legend({"none": True})
+    histogram.set_style(10)
+    worksheet.insert_chart("G10", histogram, {"x_scale": 1.18, "y_scale": 1.05})
+
+    cumulative_chart = workbook.add_chart({"type": "line"})
+    cumulative_chart.add_series(
+        {
+            "name": "Накопленная частость",
+            "categories": "='Распределение'!$B$12:$B$19",
+            "values": "='Распределение'!$F$12:$F$19",
+            "line": {"color": "#24758C", "width": 2.25},
+            "marker": {
+                "type": "circle",
+                "size": 5,
+                "border": {"color": "#24758C"},
+                "fill": {"color": "#FFFFFF"},
+            },
+        }
+    )
+    cumulative_chart.set_title({"name": "Кумулятивная линия"})
+    cumulative_chart.set_x_axis({"name": "Верхняя граница интервала, с"})
+    cumulative_chart.set_y_axis(
+        {
+            "name": "Накопленная частость",
+            "num_format": "0%",
+            "min": 0,
+            "max": 1,
+            "major_unit": 0.2,
+        }
+    )
+    cumulative_chart.set_legend({"none": True})
+    cumulative_chart.set_style(10)
+    worksheet.insert_chart(
+        "G28", cumulative_chart, {"x_scale": 1.18, "y_scale": 1.05}
+    )
+
+    worksheet.merge_range(
+        "A25:F27",
+        (
+            "Кумулятивная линия показывает долю наблюдений, не превышающих "
+            "верхнюю границу соответствующего интервала."
+        ),
+        workbook_formats["note"],
+    )
+
+
+def build_xlsx(path: Path) -> None:
+    """Build the intermediate workbook with formulas and native charts."""
+    workbook = xlsxwriter.Workbook(path)
+    workbook_formats = formats(workbook)
+    write_data_sheet(workbook, workbook_formats)
+    write_distribution_sheet(workbook, workbook_formats)
+    workbook.close()
+
+
+def convert_to_ods(source: Path, output_directory: Path) -> Path:
+    """Convert the intermediate XLSX to ODS through LibreOffice."""
+    soffice = which("soffice")
+    if not soffice:
+        raise RuntimeError("LibreOffice soffice is not available")
+    profile = output_directory / "lo-profile"
+    profile.mkdir()
+    run(
+        [
+            soffice,
+            "--headless",
+            f"-env:UserInstallation=file://{profile}",
+            "--convert-to",
+            "ods",
+            "--outdir",
+            str(output_directory),
+            str(source),
+        ],
+        check=True,
+    )
+    return output_directory / f"{source.stem}.ods"
+
+
+def main() -> None:
+    """Create and save the final ODS workbook."""
+    (ROOT / "tmp").mkdir(exist_ok=True)
+    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+    with TemporaryDirectory(dir=ROOT / "tmp") as temporary:
+        temporary_directory = Path(temporary)
+        source = temporary_directory / "empirical-distribution-calc.xlsx"
+        build_xlsx(source)
+        converted = convert_to_ods(source, temporary_directory)
+        converted.replace(OUTPUT)
+    print(OUTPUT.relative_to(ROOT))
+
+
+if __name__ == "__main__":
+    main()

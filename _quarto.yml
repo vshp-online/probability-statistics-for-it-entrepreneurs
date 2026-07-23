@@ -2,6 +2,8 @@ project:
   type: book
   resources:
     - code/data/interval-estimation-calc.ods
+    - code/data/empirical-distribution-calc.ods
+    - code/data/order-processing-times.csv
     - "!tmp/**"
 
 profile:
