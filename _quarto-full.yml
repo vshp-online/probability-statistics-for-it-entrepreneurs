@@ -25,6 +25,7 @@ book:
     - part: "Использование методов математической статистики в бизнесе"
       chapters:
         - book/chapters/03-statistical-methods/01-statistical-methods.qmd
+        - book/chapters/03-statistical-methods/02-parameter-estimation.qmd
     - part: "Выявление и оценка связи между признаками"
       chapters:
         - book/chapters/04-associations/01-associations.qmd
