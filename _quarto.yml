@@ -30,6 +30,8 @@ crossref:
 book:
   title: "Теория вероятностей и математическая статистика для начинающих IT-предпринимателей"
   subtitle: "Под редакцией П.С. Ткачева"
+  cover-image: book/images/cover-vshp-matplotlib.png
+  cover-image-alt: "Обложка: параметрический щит ВШП на координатной сетке"
   page-navigation: true
   repo-url: https://github.com/vshp-online/ps-it-book
   output-file: probability-statistics-for-it-entrepreneurs
@@ -69,6 +71,7 @@ format:
     include-in-header:
       - book/tex/typography.tex
       - book/tex/hyphenation.tex
+      - book/tex/cover.tex
 
 execute:
   freeze: auto

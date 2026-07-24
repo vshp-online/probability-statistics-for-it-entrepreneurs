@@ -17,6 +17,8 @@ todo.tmp.md
 
 # Временные артефакты анализа и генерации
 /tmp/
+__pycache__/
+*.py[cod]
 
 # Documents
 **/*.docx

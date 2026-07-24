@@ -1,0 +1,10 @@
+% Обложка идёт перед штатной титульной страницей Quarto и не имеет номера
+% страницы или колонтитулов. Фоновый слой первой отгружаемой страницы не
+% зависит от геометрии текстового блока.
+\AtBeginDocument{%
+  \AddToShipoutPictureBG*{%
+    \AtPageLowerLeft{\includegraphics[width=\paperwidth,height=\paperheight]{book/images/cover-vshp-matplotlib.pdf}}%
+  }%
+  \thispagestyle{empty}%
+  \mbox{}%
+}
